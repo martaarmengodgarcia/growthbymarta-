@@ -1,0 +1,370 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import GradientOrb from "../GradientOrb.astro";
+import Button from "../Button.astro";
+import Marquee from "../Marquee.astro";
+import TestimonialCarousel from "../TestimonialCarousel.astro";
+import { getHome, getSite, getContact, paths, type Lang } from "../../data";
+import { renderEmphasis } from "../../lib/richText";
+import martaHeroCover from "../../assets/brand/marta-hero-cover.png";
+import blipLogo from "../../assets/logos/blip.png";
+import medowLogo from "../../assets/logos/medow.png";
+import fossaLogo from "../../assets/logos/fossa.png";
+import gbrLogo from "../../assets/logos/gbr.png";
+import featuredProjectImage from "../../assets/work/partner-gtm-illustration.png";
+import featuredProjectImageMobile from "../../assets/work/partner-gtm-illustration-mobile-v2.png";
+
+const COMPANY_LOGOS: Record<string, ImageMetadata> = {
+  "Medow Health": medowLogo,
+  Blip: blipLogo,
+  "FOSSA Systems": fossaLogo,
+  GBR: gbrLogo,
+};
+
+const COMPANY_URLS: Record<string, string> = {
+  "Medow Health": "https://www.medowhealth.ai/",
+  Blip: "https://www.blip.ai/",
+  "FOSSA Systems": "https://fossa.systems/",
+  GBR: "https://www.gbreports.com/",
+};
+
+const VALUE_ACCENTS = [
+  { bar: "bg-coral", text: "text-coral" },
+  { bar: "bg-sunset", text: "text-sunset" },
+  { bar: "bg-peach", text: "text-peach" },
+  { bar: "bg-lavender", text: "text-lavender" },
+  { bar: "bg-sage", text: "text-sage" },
+];
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const otherLang: Lang = lang === "es" ? "en" : "es";
+const t = getHome(lang);
+const site = getSite(lang);
+const contact = getContact(lang);
+const p = paths[lang];
+const caseStudyHref = `${p.work}${t.featuredProject.slug}/`;
+const talkHref = `mailto:${contact.email}`;
+---
+
+<BaseLayout
+  lang={lang}
+  title={site.metaTitle}
+  description={site.metaDescription}
+  alternatePath={paths[otherLang].home}
+>
+  <!-- 1. Hero -->
+  <section class="relative overflow-hidden">
+    <GradientOrb class="-top-32 -right-40 h-[32rem] w-[32rem]" />
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-16 sm:pt-24 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8 lg:px-8 lg:pb-28 lg:pt-28">
+      <div>
+        <p class="eyebrow text-coral">{t.hero.eyebrow}</p>
+        <h1 class="mt-5 text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
+          {t.hero.title}
+        </h1>
+        <p class="mt-6 max-w-lg text-xl font-medium text-charcoal/80 sm:text-2xl">
+          {t.hero.subtitle}
+        </p>
+        <div class="mt-5 max-w-md space-y-4 text-base text-charcoal/60">
+          {t.hero.text.split("\n\n").map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        <div class="mt-8 grid max-w-md grid-cols-2 gap-x-6 gap-y-5 border-t border-charcoal/8 pt-8">
+          {
+            t.hero.stats.map((stat) => (
+              <div>
+                <p class="font-serif text-3xl text-gradient sm:text-4xl">{stat.value}</p>
+                <p class="mt-1 text-xs text-charcoal/50">{stat.label}</p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="mt-9 flex flex-wrap gap-4">
+          <Button href={p.work}>{t.hero.ctaPrimary}</Button>
+          <Button href={p.about} variant="secondary">{t.hero.ctaSecondary}</Button>
+        </div>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-sm lg:max-w-none">
+        <div class="gradient-orb absolute inset-4 rounded-[2.5rem] opacity-70"></div>
+        <div class="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] shadow-2xl shadow-charcoal/10">
+          <Image
+            src={martaHeroCover}
+            alt="Marta Armengod"
+            width={720}
+            height={900}
+            quality={92}
+            class="h-full w-full object-cover object-[center_18%]"
+            priority
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Expertise strip -->
+  <section class="border-y border-charcoal/8 bg-sand/40 py-6">
+    <Marquee durationSeconds={19} copies={4}>
+      {
+        t.expertiseStrip.map((item, index) => (
+          <>
+            <span
+              class:list={[
+                "rounded-full bg-ivory px-5 py-2.5 text-sm font-semibold whitespace-nowrap shadow-sm",
+                VALUE_ACCENTS[index % VALUE_ACCENTS.length].text,
+              ]}
+            >
+              {item}
+            </span>
+            <span
+              class="brand-gradient h-1.5 w-1.5 shrink-0 self-center rounded-full"
+              aria-hidden="true"
+            />
+          </>
+        ))
+      }
+    </Marquee>
+  </section>
+
+  <!-- 3. Where I add the most value -->
+  <section class="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
+    <div class="max-w-2xl">
+      <h2 class="text-4xl sm:text-5xl">{t.valueSection.title}</h2>
+      <p class="mt-5 text-lg text-charcoal/70">{t.valueSection.intro}</p>
+    </div>
+
+    <div class="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        t.valueSection.items.map((item, index) => {
+          const accent = VALUE_ACCENTS[index % VALUE_ACCENTS.length];
+          return (
+            <div class="group relative overflow-hidden rounded-3xl border border-charcoal/12 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-charcoal/10">
+              <span class:list={["absolute inset-x-0 top-0 h-1", accent.bar]} />
+              <span class="font-serif text-3xl text-gradient">{item.number}</span>
+              <h3 class="mt-4 text-xl font-medium">{item.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-charcoal/60">{item.description}</p>
+              <div class="mt-5 border-t border-charcoal/8 pt-4">
+                <p class:list={["text-xs font-semibold tracking-wide", accent.text]}>{item.tags}</p>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <div class="mt-12">
+      <Button href={p.work} variant="secondary">{t.valueSection.cta}</Button>
+    </div>
+  </section>
+
+  <!-- 4. B2B SaaS experience -->
+  <section class="bg-charcoal py-20 text-ivory lg:py-24">
+    <div class="mx-auto max-w-6xl px-6 lg:px-8">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <div>
+          <h2 class="text-3xl sm:text-4xl">{t.experience.title}</h2>
+          <div class="mt-5 space-y-4 text-ivory/70">
+            {t.experience.text.split("\n\n").map((paragraph) => <p>{paragraph}</p>)}
+          </div>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <Button href={p.about} variant="primaryOnDark">{t.experience.ctaMoreAboutMe}</Button>
+            <Button
+              href={contact.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="secondaryOnDark"
+            >
+              {t.experience.ctaDownloadCv}
+            </Button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap lg:justify-end">
+          {
+            t.experience.companies.map((company) => {
+              const logo = COMPANY_LOGOS[company];
+              const url = COMPANY_URLS[company];
+              const content = logo ? (
+                <Image src={logo} alt={company} height={64} class="h-8 w-auto object-contain" />
+              ) : (
+                <span class="font-serif text-xl text-charcoal/80">{company}</span>
+              );
+              return url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex h-20 items-center justify-center rounded-2xl bg-ivory px-7 transition-transform duration-300 hover:-translate-y-0.5"
+                  aria-label={company}
+                >
+                  {content}
+                </a>
+              ) : (
+                <span class="flex h-20 items-center justify-center rounded-2xl bg-ivory px-7">
+                  {content}
+                </span>
+              );
+            })
+          }
+          <span class="flex h-20 items-center justify-center rounded-2xl border-2 border-dashed border-ivory/20 px-7 text-center">
+            <span class="font-serif text-base italic text-ivory/45">{t.experience.openSlotLabel}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Featured project -->
+  <section class="relative overflow-hidden py-14 lg:py-20">
+    <GradientOrb class="-bottom-40 -left-32 h-[28rem] w-[28rem] opacity-40" />
+    <div class="relative mx-auto max-w-5xl px-6 lg:px-8">
+      <span class="eyebrow inline-flex items-center gap-2 rounded-full bg-charcoal px-4 py-1.5 text-ivory">
+        {t.featuredProject.eyebrow}
+      </span>
+
+      <div class="relative mt-6 overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-charcoal/10">
+        <span class="brand-gradient absolute inset-y-0 left-0 w-1.5" aria-hidden="true" />
+        <div class="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+          <div class="p-8 lg:p-10">
+            <h2 class="text-2xl sm:text-3xl">{t.featuredProject.title}</h2>
+            <div class="mt-4 space-y-3">
+              {
+                t.featuredProject.paragraphs.map((paragraph, index) => (
+                  <p class={index === 0 ? "text-base font-medium text-charcoal/80" : "text-sm text-charcoal/60"}>
+                    {renderEmphasis(paragraph).map((chunk) =>
+                      chunk.bold ? (
+                        <strong class="font-semibold text-charcoal">{chunk.text}</strong>
+                      ) : (
+                        chunk.text
+                      ),
+                    )}
+                  </p>
+                ))
+              }
+            </div>
+            <div class="mt-5 grid grid-cols-3 gap-x-4 border-t border-charcoal/8 pt-5">
+              {
+                t.featuredProject.resultStats.map((stat) => (
+                  <div>
+                    <p class="font-serif text-2xl text-gradient sm:text-3xl">{stat.value}</p>
+                    <p class="mt-1 text-xs text-charcoal/50">{stat.label}</p>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="flex flex-wrap gap-4 pt-6">
+              <Button href={caseStudyHref}>{t.featuredProject.ctaPrimary}</Button>
+              <Button href={p.work} variant="secondary">{t.featuredProject.ctaSecondary}</Button>
+            </div>
+          </div>
+          <div class="relative min-h-[220px] lg:min-h-full">
+            <Image
+              src={featuredProjectImageMobile}
+              alt={t.featuredProject.title}
+              width={800}
+              quality={90}
+              class="absolute inset-0 block h-full w-full object-cover sm:hidden"
+            />
+            <Image
+              src={featuredProjectImage}
+              alt={t.featuredProject.title}
+              width={1000}
+              quality={90}
+              class="absolute inset-0 hidden h-full w-full object-cover sm:block"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5b. Testimonials -->
+  <section class="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
+    <p class="eyebrow text-center text-charcoal/40">{t.experience.testimonialsTitle}</p>
+    <div class="mt-8">
+      <TestimonialCarousel
+        testimonials={t.experience.testimonials}
+        prevLabel={t.experience.testimonialsPrevLabel}
+        nextLabel={t.experience.testimonialsNextLabel}
+        variant="light"
+      />
+    </div>
+  </section>
+
+  <!-- 6. How I work -->
+  <section class="mx-auto max-w-6xl px-6 py-20 lg:px-8 lg:py-28">
+    <h2 class="text-4xl sm:text-5xl">{t.howIWork.title}</h2>
+    <div class="mt-14 grid gap-6 sm:grid-cols-3">
+      {
+        t.howIWork.items.map((item, index) => {
+          const accent = VALUE_ACCENTS[index % VALUE_ACCENTS.length];
+          return (
+            <div class="group rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-charcoal/10">
+              <span
+                class:list={[
+                  "flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-ivory",
+                  accent.bar,
+                ]}
+              >
+                0{index + 1}
+              </span>
+              <h3 class="mt-5 text-xl font-medium">{item.title}</h3>
+              <div class="mt-3 space-y-3 text-sm leading-relaxed text-charcoal/60">
+                {item.description.split("\n\n").map((paragraph) => (
+                  <p>
+                    {renderEmphasis(paragraph).map((chunk) =>
+                      chunk.bold ? <strong class="font-semibold text-charcoal">{chunk.text}</strong> : chunk.text,
+                    )}
+                  </p>
+                ))}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- 7. One last thing -->
+  <section class="relative overflow-hidden border-y border-charcoal/8 bg-sand/40 py-20 lg:py-28">
+    <div class="relative mx-auto max-w-xl px-6 text-center lg:px-8">
+      <p class="eyebrow text-charcoal/40">{t.oneLastThing.title}</p>
+      <div class="mt-6 space-y-4 text-lg leading-relaxed text-charcoal/70">
+        {t.oneLastThing.paragraphs.slice(0, -1).map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <span class="relative mt-4 inline-block">
+        <span class="font-hand text-4xl leading-none text-coral sm:text-5xl">
+          {t.oneLastThing.paragraphs.at(-1)}
+        </span>
+        <svg
+          viewBox="0 0 200 16"
+          preserveAspectRatio="none"
+          class="absolute -bottom-2 left-0 h-3 w-full text-coral"
+          aria-hidden="true"
+        >
+          <path
+            d="M2 9 Q 50 2 100 9 T 198 9"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            fill="none"
+          />
+        </svg>
+      </span>
+    </div>
+  </section>
+
+  <!-- 8. Final CTA -->
+  <section class="relative overflow-hidden py-24 lg:py-32">
+    <GradientOrb class="left-1/2 top-0 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 opacity-30" />
+    <div class="relative mx-auto max-w-3xl px-6 text-center lg:px-8">
+      <h2 class="text-4xl sm:text-5xl">{t.finalCta.title}</h2>
+      <p class="mx-auto mt-6 max-w-xl text-lg text-charcoal/70">{t.finalCta.text}</p>
+      <div class="mt-9">
+        <Button href={talkHref}>{t.finalCta.cta}</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

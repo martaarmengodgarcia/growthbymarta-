@@ -1,0 +1,70 @@
+---
+import { getNav, getSite, getContact, paths, type Lang } from "../data";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const nav = getNav(lang);
+const site = getSite(lang);
+const contact = getContact(lang);
+const p = paths[lang];
+---
+
+<footer class="border-t border-charcoal/8 bg-sand/40">
+  <div class="mx-auto max-w-6xl px-6 py-16 lg:px-8">
+    <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+      <div>
+        <p class="eyebrow text-charcoal/50">{nav.home}</p>
+        <ul class="mt-4 space-y-3 text-sm">
+          <li><a href={p.home} class="hover:text-coral">{nav.home}</a></li>
+          <li><a href={p.about} class="hover:text-coral">{nav.about}</a></li>
+          <li><a href={p.work} class="hover:text-coral">{nav.work}</a></li>
+          <li><a href={p.contact} class="hover:text-coral">{nav.contact}</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="eyebrow text-charcoal/50">Email</p>
+        <ul class="mt-4 space-y-3 text-sm">
+          <li>
+            <a href={`mailto:${contact.email}`} class="hover:text-coral break-all">
+              {contact.email}
+            </a>
+          </li>
+          <li>
+            <a
+              href={contact.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-coral"
+            >
+              {contact.linkedinLabel}
+            </a>
+          </li>
+          <li>
+            {
+              contact.cvAvailable ? (
+                <a
+                  href={contact.cvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-coral"
+                >
+                  {contact.cvLabel}
+                </a>
+              ) : (
+                <span class="text-charcoal/40">{contact.cvLabel}</span>
+              )
+            }
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-16 flex flex-col-reverse items-start justify-between gap-4 border-t border-charcoal/8 pt-8 text-xs text-charcoal/50 sm:flex-row sm:items-center">
+      <p>{site.copyright}</p>
+    </div>
+  </div>
+</footer>

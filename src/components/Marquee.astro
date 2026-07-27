@@ -1,0 +1,30 @@
+---
+interface Props {
+  class?: string;
+  /** Seconds for a single copy-width to scroll past — visual speed stays
+   * constant regardless of `copies`, since total duration scales with it. */
+  durationSeconds?: number;
+  /** How many times to repeat the content. Higher values guard against
+   * visible gaps when the content is narrower than the viewport. */
+  copies?: number;
+}
+
+const { class: className = "", durationSeconds = 20, copies = 2 } = Astro.props;
+const content = await Astro.slots.render("default");
+const safeCopies = Math.max(2, copies);
+const totalDuration = durationSeconds * safeCopies;
+const translatePercent = (100 / safeCopies).toFixed(4);
+---
+
+<div class:list={["marquee-wrapper overflow-hidden", className]}>
+  <div
+    class="marquee-track"
+    style={`--marquee-duration: ${totalDuration}s; --marquee-translate: -${translatePercent}%;`}
+  >
+    {
+      Array.from({ length: safeCopies }).map((_, i) => (
+        <div class="marquee-group" aria-hidden={i > 0 ? "true" : undefined} set:html={content} />
+      ))
+    }
+  </div>
+</div>

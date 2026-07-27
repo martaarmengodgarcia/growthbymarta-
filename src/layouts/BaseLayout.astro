@@ -1,0 +1,50 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+import type { Lang } from "../data";
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  alternatePath: string;
+}
+
+const { lang, title, description, alternatePath } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" hreflang="es" href={new URL(lang === "es" ? Astro.url.pathname : alternatePath, Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(lang === "en" ? Astro.url.pathname : alternatePath, Astro.site)} />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Satoshi (free, self-serve license via Fontshare) is used for body/UI text. -->
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-ivory text-charcoal">
+    <Header lang={lang} alternatePath={alternatePath} />
+    <main>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+  </body>
+</html>

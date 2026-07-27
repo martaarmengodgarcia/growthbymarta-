@@ -1,0 +1,110 @@
+---
+import { Image } from "astro:assets";
+import { render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import GradientOrb from "../GradientOrb.astro";
+import Button from "../Button.astro";
+import { getWork, getSite, paths, type Lang } from "../../data";
+
+interface Props {
+  lang: Lang;
+  entry: CollectionEntry<"work">;
+  slug: string;
+}
+
+const { lang, entry, slug } = Astro.props;
+const otherLang: Lang = lang === "es" ? "en" : "es";
+const t = getWork(lang);
+const site = getSite(lang);
+const p = paths[lang];
+
+const { Content } = await render(entry);
+
+const metaLabels =
+  lang === "es"
+    ? { role: "Rol", tools: "Herramientas", team: "Equipo", context: "Contexto" }
+    : { role: "Role", tools: "Tools", team: "Team", context: "Context" };
+
+const meta = [
+  { label: metaLabels.role, value: entry.data.role },
+  { label: metaLabels.tools, value: entry.data.tools },
+  { label: metaLabels.team, value: entry.data.team },
+  { label: metaLabels.context, value: entry.data.context },
+].filter((item) => item.value);
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${entry.data.title} — ${site.metaTitle}`}
+  description={site.metaDescription}
+  alternatePath={`${paths[otherLang].work}${slug}/`}
+>
+  <section class="relative overflow-hidden">
+    <GradientOrb class="-top-24 -right-32 h-[26rem] w-[26rem] opacity-30" />
+    <div class="relative mx-auto max-w-4xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-28">
+      <a href={p.work} class="text-sm font-medium text-charcoal/50 hover:text-coral">
+        ← {t.title}
+      </a>
+      <h1 class="mt-5 text-4xl sm:text-5xl">{entry.data.title}</h1>
+
+      {
+        meta.length > 0 && (
+          <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            {meta.map((item) => (
+              <div>
+                <dt class="eyebrow text-charcoal/40">{item.label}</dt>
+                <dd class="mt-1 text-sm text-charcoal/70">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    entry.data.image && (
+      <section class="mx-auto max-w-4xl px-6 lg:px-8">
+        <Image
+          src={entry.data.image}
+          alt={entry.data.title}
+          width={960}
+          height={540}
+          quality={90}
+          class="w-full rounded-[1.5rem] object-cover shadow-xl shadow-charcoal/10"
+        />
+      </section>
+    )
+  }
+
+  {
+    entry.data.pending ? (
+      <section class="mx-auto max-w-4xl px-6 py-20 lg:px-8 lg:py-28">
+        <div class="rounded-[2rem] border border-dashed border-charcoal/15 bg-sand/30 px-8 py-16 text-center">
+          <p class="eyebrow text-charcoal/40">{t.pendingLabel}</p>
+          <p class="mx-auto mt-4 max-w-md text-charcoal/60">
+            {lang === "es"
+              ? "El contenido completo de este proyecto se añadirá próximamente."
+              : "The full write-up for this project is coming soon."}
+          </p>
+          <div class="mt-8">
+            <Button href={p.work} variant="secondary">
+              {lang === "es" ? "Ver otros proyectos" : "See other projects"}
+            </Button>
+          </div>
+        </div>
+      </section>
+    ) : (
+      <section class="mx-auto max-w-4xl px-6 py-16 lg:px-8 lg:py-20">
+        <div class="case-study-body">
+          <Content />
+        </div>
+        <div class="mt-16 border-t border-charcoal/8 pt-10">
+          <Button href={p.work} variant="secondary">
+            {lang === "es" ? "← Ver otros proyectos" : "← See other projects"}
+          </Button>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

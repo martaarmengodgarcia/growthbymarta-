@@ -1,0 +1,218 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Button from "../Button.astro";
+import { getAbout, getSite, getNav, getContact, paths, type Lang } from "../../data";
+import { renderEmphasis } from "../../lib/richText";
+import martaClosing from "../../assets/brand/marta-closing.png";
+import worldMap from "../../assets/about/world-map.png";
+import blipLogo from "../../assets/logos/blip.png";
+import medowLogo from "../../assets/logos/medow.png";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const otherLang: Lang = lang === "es" ? "en" : "es";
+const t = getAbout(lang);
+const site = getSite(lang);
+const nav = getNav(lang);
+const contact = getContact(lang);
+
+const RESULT_LOGOS: Record<string, ImageMetadata> = { Blip: blipLogo, Medow: medowLogo };
+const RESULT_ACCENTS = ["bg-coral", "bg-sunset", "bg-peach"];
+const ctaDownloadCv = lang === "es" ? "Descargar CV" : "Download CV";
+const ctaTalk = lang === "es" ? "Hablemos" : "Let's talk";
+const ctaTalkHref = `mailto:${contact.email}`;
+
+// Countries lived and worked in. Positions are hand-calibrated against the
+// map's equirectangular projection (viewBox 0 0 4378.13 2434.94 — the full,
+// uncropped image), using each country's capital or best-known city as the
+// reference point.
+const COUNTRIES = [
+  { name: lang === "es" ? "España" : "Spain", x: 2144.3, y: 671.0 },
+  { name: lang === "es" ? "Irlanda" : "Ireland", x: 2113.4, y: 495.9 },
+  { name: lang === "es" ? "México" : "Mexico", x: 983.4, y: 954.8 },
+  { name: lang === "es" ? "Perú" : "Peru", x: 1252.1, y: 1380.5 },
+  { name: "Chile", x: 1329.7, y: 1670.2 },
+  { name: lang === "es" ? "Brasil" : "Brazil", x: 1621.9, y: 1536.0 },
+  { name: "India", x: 3128.0, y: 830.4 },
+  { name: lang === "es" ? "Turquía" : "Turkey", x: 2541.4, y: 662.8 },
+  { name: "Australia", x: 4028.0, y: 1675.9 },
+];
+const worldTitle = lang === "es" ? "Países en los que he vivido y trabajado" : "Countries I've lived and worked in";
+const worldSubtitle =
+  lang === "es" ? "Presencia en más de 9 mercados internacionales" : "Experience across 9+ international markets";
+const countriesLine = COUNTRIES.map((c) => c.name).join(" · ");
+
+const timeline = t.timeline.map((item) => {
+  const paragraphs = item.body.split("\n\n");
+  return { title: item.title, lead: paragraphs[0], rest: paragraphs.slice(1) };
+});
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${nav.about} — ${site.metaTitle}`}
+  description={site.metaDescription}
+  alternatePath={paths[otherLang].about}
+>
+  <!-- Hero: photo + intro, generous air -->
+  <section class="mx-auto max-w-5xl px-6 pb-20 pt-16 sm:pt-24 lg:px-8 lg:pb-28 lg:pt-28">
+    <div class="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:items-center lg:gap-16">
+      <div class="mx-auto w-full max-w-[280px] lg:mx-0">
+        {/* TODO: swap for the replacement photo Marta will send */}
+        <Image
+          src={martaClosing}
+          alt="Marta Armengod"
+          width={480}
+          height={540}
+          class="w-full rounded-[2rem] object-cover"
+        />
+      </div>
+      <div>
+        <h1 class="text-4xl sm:text-5xl">{nav.about}</h1>
+        <div class="mt-6 space-y-5 text-lg text-charcoal/70">
+          {t.intro.map((paragraph) => (
+            <p>
+              {renderEmphasis(paragraph).map((chunk) =>
+                chunk.bold ? <strong class="font-semibold text-charcoal">{chunk.text}</strong> : chunk.text,
+              )}
+            </p>
+          ))}
+        </div>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <Button href={contact.cvUrl} target="_blank" rel="noopener noreferrer" variant="secondary">
+            {ctaDownloadCv}
+          </Button>
+          <Button href={ctaTalkHref}>{ctaTalk}</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Career timeline: title + one line, click to read more -->
+  <section class="mx-auto max-w-3xl px-6 lg:px-8">
+    <ol class="border-t border-charcoal/10">
+      {
+        timeline.map((item, index) => (
+          <li class="border-b border-charcoal/10">
+            <details class="group py-8">
+              <summary class="flex cursor-pointer list-none items-start justify-between gap-6 [&::-webkit-details-marker]:hidden">
+                <div class="flex gap-5">
+                  <span class="pt-1 font-mono text-xs text-charcoal/30">0{index + 1}</span>
+                  <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl">{item.title}</h2>
+                    <p class="mt-2 max-w-lg text-charcoal/55">
+                      {renderEmphasis(item.lead).map((chunk) =>
+                        chunk.bold ? <strong class="font-semibold text-charcoal">{chunk.text}</strong> : chunk.text,
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  class="mt-1.5 shrink-0 text-2xl font-light text-charcoal/25 transition-transform duration-300 group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+              </summary>
+              {item.rest.length > 0 && (
+                <div class="mt-4 max-w-lg space-y-4 pl-9 text-charcoal/70">
+                  {item.rest.map((paragraph) => (
+                    <p>
+                      {renderEmphasis(paragraph).map((chunk) =>
+                        chunk.bold ? <strong class="font-semibold text-charcoal">{chunk.text}</strong> : chunk.text,
+                      )}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </details>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- The world: one big map, nothing else -->
+  <section class="px-6 py-16 lg:px-8 lg:py-20">
+    <div class="mx-auto max-w-4xl text-center">
+      <h2 class="text-3xl sm:text-4xl">{worldTitle}</h2>
+      <p class="mt-2 text-sm text-charcoal/45">{worldSubtitle}</p>
+    </div>
+    <div class="mx-auto mt-12 w-full max-w-6xl">
+      <Image src={worldMap} alt={worldTitle} width={1800} quality={90} class="h-auto w-full" />
+    </div>
+    <div class="mx-auto max-w-4xl text-center">
+      <p class="mx-auto mt-6 max-w-xl text-sm text-charcoal/40">{countriesLine}</p>
+    </div>
+  </section>
+
+  <!-- Results: polished cards with real logos -->
+  <section class="mx-auto max-w-5xl border-t border-charcoal/10 px-6 pb-20 pt-10 lg:px-8 lg:pb-28 lg:pt-14">
+    <h2 class="text-3xl sm:text-4xl">{t.resultsTitle}</h2>
+    <div class="mt-10 grid gap-6 sm:grid-cols-3">
+      {
+        t.results.map((result, index) => {
+          const logo = RESULT_LOGOS[result.company];
+          return (
+            <div class="group relative overflow-hidden rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-charcoal/10">
+              <span class:list={["absolute inset-x-0 top-0 h-1", RESULT_ACCENTS[index % RESULT_ACCENTS.length]]} />
+              <div class="flex items-start justify-between gap-3">
+                <p class="font-serif text-2xl text-gradient sm:text-3xl">{result.value}</p>
+                {logo && <Image src={logo} alt={result.company} height={48} class="h-5 w-auto shrink-0 object-contain opacity-60" />}
+              </div>
+              <p class="mt-1 text-base font-medium text-charcoal/80">{result.label}</p>
+              <p class="mt-3 text-[0.9375rem] leading-relaxed text-charcoal/60">{result.description}</p>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- Closing: same treatment as Home's "One last thing" -->
+  <section class="relative overflow-hidden border-y border-charcoal/8 bg-sand/40 py-20 lg:py-28">
+    <div class="relative mx-auto max-w-xl px-6 text-center lg:px-8">
+      {
+        t.closing.length > 1 ? (
+          <>
+            <div class="space-y-4 text-lg leading-relaxed text-charcoal/70">
+              {t.closing.slice(0, -1).map((paragraph, index) => (
+                <>
+                  <p>{paragraph}</p>
+                  {index === 0 && (
+                    <p class="text-2xl" aria-hidden="true">
+                      ✈️ 🌊 🧘 🏃
+                    </p>
+                  )}
+                </>
+              ))}
+            </div>
+            <span class="relative mt-4 inline-block">
+              <span class="font-hand text-4xl leading-none text-coral sm:text-5xl">{t.closing.at(-1)}</span>
+              <svg
+                viewBox="0 0 200 16"
+                preserveAspectRatio="none"
+                class="absolute -bottom-2 left-0 h-3 w-full text-coral"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2 9 Q 50 2 100 9 T 198 9"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  fill="none"
+                />
+              </svg>
+            </span>
+          </>
+        ) : (
+          <p class="text-lg leading-relaxed text-charcoal/70">{t.closing[0]}</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

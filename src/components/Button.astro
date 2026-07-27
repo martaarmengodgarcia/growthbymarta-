@@ -1,0 +1,40 @@
+---
+interface Props {
+  href: string;
+  variant?: "primary" | "secondary" | "primaryOnDark" | "secondaryOnDark";
+  class?: string;
+  target?: string;
+  rel?: string;
+}
+
+const {
+  href,
+  variant = "primary",
+  class: className = "",
+  target,
+  rel,
+} = Astro.props;
+
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium transition-all duration-300 whitespace-nowrap";
+
+const variants = {
+  primary:
+    "bg-charcoal text-ivory shadow-sm hover:bg-charcoal/90 hover:shadow-lg hover:shadow-coral/15 hover:-translate-y-0.5",
+  secondary:
+    "border border-charcoal/20 text-charcoal hover:border-charcoal/40 hover:bg-charcoal/[0.03]",
+  primaryOnDark:
+    "bg-ivory text-charcoal shadow-sm hover:bg-ivory/90 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5",
+  secondaryOnDark:
+    "border border-ivory/25 text-ivory hover:border-ivory/50 hover:bg-ivory/[0.06]",
+};
+---
+
+<a
+  href={href}
+  target={target}
+  rel={rel}
+  class:list={[base, variants[variant], className]}
+>
+  <slot />
+</a>

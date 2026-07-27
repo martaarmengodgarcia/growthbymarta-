@@ -1,0 +1,88 @@
+---
+import TestimonialCard from "./TestimonialCard.astro";
+
+const ACCENTS = ["bg-coral", "bg-sunset", "bg-peach", "bg-lavender", "bg-sage"];
+
+interface Props {
+  testimonials: {
+    name: string;
+    role: string;
+    photo: "pedro" | "david" | "jaime" | "joel" | "carola";
+    quotes: string[];
+  }[];
+  prevLabel: string;
+  nextLabel: string;
+  /** Button styling for the section background this carousel sits on. */
+  variant?: "dark" | "light";
+}
+
+const { testimonials, prevLabel, nextLabel, variant = "dark" } = Astro.props;
+const buttonClass =
+  variant === "dark"
+    ? "border-ivory/20 text-ivory hover:border-ivory/50 hover:bg-ivory/10"
+    : "border-charcoal/15 text-charcoal hover:border-charcoal/30 hover:bg-charcoal/5";
+---
+
+<div class="testimonial-carousel flex items-center gap-3 sm:gap-4">
+  <button
+    type="button"
+    class:list={["carousel-prev hidden h-11 w-11 shrink-0 items-center justify-center rounded-full border transition disabled:opacity-30 sm:flex", buttonClass]}
+    aria-label={prevLabel}
+  >
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.75">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6" />
+    </svg>
+  </button>
+
+  <div class="carousel-track flex flex-1 gap-6 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    {
+      testimonials.map((testimonial, index) => (
+        <TestimonialCard
+          name={testimonial.name}
+          role={testimonial.role}
+          photo={testimonial.photo}
+          quotes={testimonial.quotes}
+          accent={ACCENTS[index % ACCENTS.length]}
+        />
+      ))
+    }
+  </div>
+
+  <button
+    type="button"
+    class:list={["carousel-next hidden h-11 w-11 shrink-0 items-center justify-center rounded-full border transition disabled:opacity-30 sm:flex", buttonClass]}
+    aria-label={nextLabel}
+  >
+    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.75">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".testimonial-carousel").forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>(".carousel-track");
+    const prevBtn = carousel.querySelector<HTMLButtonElement>(".carousel-prev");
+    const nextBtn = carousel.querySelector<HTMLButtonElement>(".carousel-next");
+    if (!track || !prevBtn || !nextBtn) return;
+
+    const step = () => {
+      const firstCard = track.firstElementChild as HTMLElement | null;
+      if (!firstCard) return track.clientWidth;
+      const gap = parseFloat(getComputedStyle(track).columnGap || "24");
+      return firstCard.getBoundingClientRect().width + gap;
+    };
+
+    const updateButtons = () => {
+      const maxScroll = track.scrollWidth - track.clientWidth - 1;
+      prevBtn.disabled = track.scrollLeft <= 0;
+      nextBtn.disabled = track.scrollLeft >= maxScroll;
+    };
+
+    prevBtn.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+    nextBtn.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    track.addEventListener("scroll", updateButtons, { passive: true });
+    window.addEventListener("resize", updateButtons);
+    updateButtons();
+  });
+</script>

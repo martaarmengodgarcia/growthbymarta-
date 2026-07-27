@@ -1,0 +1,55 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import GradientOrb from "../GradientOrb.astro";
+import Button from "../Button.astro";
+import { getContact, getSite, getNav, paths, type Lang } from "../../data";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const otherLang: Lang = lang === "es" ? "en" : "es";
+const t = getContact(lang);
+const site = getSite(lang);
+const nav = getNav(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${nav.contact} — ${site.metaTitle}`}
+  description={site.metaDescription}
+  alternatePath={paths[otherLang].contact}
+>
+  <section class="relative min-h-[70vh] overflow-hidden">
+    <GradientOrb class="left-1/2 top-10 h-[30rem] w-[30rem] -translate-x-1/2 opacity-40" />
+    <div class="relative mx-auto flex max-w-3xl flex-col items-center px-6 py-20 text-center sm:py-28 lg:px-8">
+      <h1 class="text-5xl sm:text-6xl">{t.title}</h1>
+      <p class="mt-6 max-w-md text-lg text-charcoal/70">{t.intro}</p>
+      <p class="mt-4 text-sm text-charcoal/50">{t.location}</p>
+
+      <div class="mt-12 flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center">
+        <Button href={`mailto:${t.email}`}>{t.ctaLabel}</Button>
+        <Button href={t.linkedinUrl} target="_blank" rel="noopener noreferrer" variant="secondary">
+          {t.linkedinLabel}
+        </Button>
+        {
+          t.cvAvailable ? (
+            <Button
+              href={t.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="secondary"
+            >
+              {t.cvLabel}
+            </Button>
+          ) : (
+            <span class="inline-flex items-center justify-center rounded-full border border-dashed border-charcoal/20 px-6 py-3 text-charcoal/40">
+              {t.cvLabel}
+            </span>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
