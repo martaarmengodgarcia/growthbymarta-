@@ -1,5 +1,5 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/es/", "permanent": false }
+    { "source": "/", "destination": "/en/", "permanent": false }
   ]
 }
